@@ -1,0 +1,11 @@
+[package]
+name = "mkbootimg"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "bootimg"
+path = "rust/bootimg.rs"
+
+[dependencies]
+zerocopy = { version = "0.7.35", features = ["derive"] }
