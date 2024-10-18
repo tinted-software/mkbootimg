@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env sh
 # Copyright 2023, The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,9 +28,8 @@ cleanup (){
 }
 
 trap cleanup EXIT
-pushd ~/aosp > /dev/null
 
-BOOTIMG_DIR=$(realpath system/tools/mkbootimg/)
+BOOTIMG_DIR=$PWD
 # The stdint include generates a lot of unnecessary types that the
 # generated rust bindings really don't need.
 BLOCKED_TYPES_RE="__.+|.?int.+"
@@ -38,7 +37,7 @@ BLOCKED_TYPES_RE="__.+|.?int.+"
 # generated rust bindings really don't need.
 BLOCKED_ITEMS_RE="_.+|.?INT.+|PTR.+|ATOMIC.+|.+SOURCE|.+_H|SIG_.+|SIZE_.+|.?CHAR.+"
 CUSTOM_STRUCT_RE="(vendor_)?(boot_img_hdr|ramdisk_table_entry)_v\d+"
-CUSTOM_STRUCT_DERIVES="AsBytes,FromBytes,FromZeroes,PartialEq,Copy,Clone,Debug"
+CUSTOM_STRUCT_DERIVES="Immutable,KnownLayout,IntoBytes,FromBytes,PartialEq,Copy,Clone,Debug"
 BINDGEN_FLAGS="--use-core --with-derive-default"
 BOOTIMG_PRIV=${BOOTIMG_DIR}/rust/bootimg_priv.rs
 
@@ -46,7 +45,7 @@ BOOTIMG_PRIV=${BOOTIMG_DIR}/rust/bootimg_priv.rs
 # that the source is C++ is with a C++ extension.
 cp ${BOOTIMG_DIR}/include/bootimg/bootimg.h ${SCRATCH_DIR}/bootimg.hpp
 
-./out/host/linux-x86/bin/bindgen \
+bindgen \
     --blocklist-type="${BLOCKED_TYPES_RE}" \
     --blocklist-item="${BLOCKED_ITEMS_RE}" \
     --with-derive-custom-struct="${CUSTOM_STRUCT_RE}=${CUSTOM_STRUCT_DERIVES}" \
@@ -68,9 +67,11 @@ cat << EOF | cat - ${SCRATCH_DIR}/bootimg_gen.rs > ${BOOTIMG_PRIV}
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#![allow(unused)]
+#![allow(non_camel_case_types)]
 
-use zerocopy::{AsBytes, FromBytes, FromZeroes};
+use zerocopy::{Immutable, KnownLayout, IntoBytes, FromBytes};
 
 EOF
 
-rustfmt ${BOOTIMG_PRIV} --config-path system/tools/aidl/rustfmt.toml
+rustfmt ${BOOTIMG_PRIV}

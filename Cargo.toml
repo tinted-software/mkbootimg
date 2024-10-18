@@ -10,4 +10,4 @@ name = "bootimg"
 path = "rust/bootimg.rs"
 
 [dependencies]
-zerocopy = { version = "0.7.35", features = ["derive"] }
+zerocopy = { version = "0.8.6", features = ["derive"] }
