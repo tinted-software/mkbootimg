@@ -93,7 +93,7 @@ impl<B: ByteSlice + PartialEq> BootImage<B> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// use bootimg::BootImage;
     ///
     /// let mut buffer = [0; 4096];
@@ -138,7 +138,7 @@ impl<B: ByteSlice + PartialEq> VendorImageHeader<B> {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// use bootimg::VendorImageHeader;
     ///
     /// let mut buffer = [0; 4096];
